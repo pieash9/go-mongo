@@ -24,25 +24,28 @@ type Todo struct {
 var collection *mongo.Collection
 
 func initMongo() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found; using system environment variables")
 	}
 
-	clinet, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGODB_URI not set")
+	}
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	err = clinet.Connect(ctx)
+	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	collection = clinet.Database("mongo-todo-gin").Collection("todos")
+	collection = client.Database("mongo-todo-gin").Collection("todos")
 }
 
 func getTodos(c *gin.Context) {
