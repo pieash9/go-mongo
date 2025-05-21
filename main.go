@@ -107,7 +107,7 @@ func updateTodo(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusInternalServerError, gin.H{"message": "Todo updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "Todo updated"})
 }
 
 func deleteTodo(c *gin.Context) {
